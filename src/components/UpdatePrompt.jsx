@@ -70,12 +70,14 @@ useEffect(() => {
 //     }
 //   };
 
-const handleReload = () => {
-  if (registration?.waiting) {
-    setIsUpdating(true);
-    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-  }
-};
+ const handleReload = () => {
+    const registration = registrationRef.current;
+    if (registration?.waiting) {
+      setIsUpdating(true);
+      // Tell service worker to skip waiting and activate
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+  };
 
   // Add close handler that sets visibility to false
   const handleClose = () => {

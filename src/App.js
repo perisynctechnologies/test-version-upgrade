@@ -37,7 +37,7 @@ function App() {
           <h1>My Application</h1>
         </header>
         <main>
-          <p>Welcome to the app! - Friday 27th June - 12:08AM</p>
+          <p>Welcome to the app! - Friday 27th June - 12:30AM</p>
         </main>
       </div>
     </div>

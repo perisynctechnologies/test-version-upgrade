@@ -89,7 +89,7 @@ function registerValidSW(swUrl, config) {
         registration.update().catch(err => 
           console.debug('Background update check failed:', err)
         );
-      }, 5 * 60 * 1000);
+      }, 1 * 60 * 1000);
       
       updateIntervals.set(registration, intervalId);
 

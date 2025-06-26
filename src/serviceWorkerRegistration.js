@@ -5,6 +5,25 @@ const isLocalhost = Boolean(
   window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
 );
 
+
+function waitUntilUpdate(registration) {
+  return new Promise(resolve => {
+    if (registration.waiting) return resolve(registration);
+    
+    const trackInstalling = worker => {
+      worker.addEventListener('statechange', () => {
+        if (worker.state === 'installed') {
+          resolve(registration);
+        }
+      });
+    };
+    
+    registration.addEventListener('updatefound', () => {
+      trackInstalling(registration.installing);
+    });
+  });
+}
+
 function checkValidServiceWorker(swUrl, config) {
   fetch(swUrl)
     .then(response => {
@@ -58,40 +77,29 @@ export function register(config) {
 // Keep track of update intervals to prevent duplicates
 const updateIntervals = new WeakMap();
 
+
 function registerValidSW(swUrl, config) {
   navigator.serviceWorker.register(swUrl)
     .then(registration => {
-      // Clear any existing interval
-      if (updateIntervals.has(registration)) {
-        clearInterval(updateIntervals.get(registration));
-      }
+      // Immediate update check
+      registration.update();
       
-      // Set up periodic update checks
+      // Periodic update checks (every 5 minutes)
       const intervalId = setInterval(() => {
         registration.update().catch(err => 
           console.debug('Background update check failed:', err)
         );
-      }, 2 * 60 * 60 * 1000); // Every 2 hours
+      }, 1 * 60 * 1000);
       
       updateIntervals.set(registration, intervalId);
 
-      // Use event listener instead of onupdatefound property
-      registration.addEventListener('updatefound', () => {
-        const installingWorker = registration.installing;
-        if (!installingWorker) return;
-        
-        const stateChangeHandler = () => {
-          if (installingWorker.state === 'installed') {
-            if (navigator.serviceWorker.controller) {
-              config?.onUpdate?.(registration);
-            } else {
-              config?.onSuccess?.(registration);
-            }
-            installingWorker.removeEventListener('statechange', stateChangeHandler);
-          }
-        };
-        
-        installingWorker.addEventListener('statechange', stateChangeHandler);
+      // Enhanced update detection
+      waitUntilUpdate(registration).then(reg => {
+        if (navigator.serviceWorker.controller) {
+          config?.onUpdate?.(reg);
+        } else {
+          config?.onSuccess?.(reg);
+        }
       });
     })
     .catch(error => {

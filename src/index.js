@@ -11,9 +11,8 @@ const root = createRoot(container);
 if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
   serviceWorkerRegistration.register({
     onUpdate: registration => {
-      setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('swUpdate', { detail: registration }));
-      }, 30000);
+      // Dispatch immediately without delay
+      document.dispatchEvent(new CustomEvent('swUpdate', { detail: registration }));
     }
   });
 }

@@ -6,6 +6,22 @@ const UpdatePrompt = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const registrationRef = useRef(null);
 
+
+  // Add this useEffect
+useEffect(() => {
+  const handleForceReload = (event) => {
+    if (event.data?.type === 'FORCE_RELOAD') {
+      window.location.reload();
+    }
+  };
+  
+  navigator.serviceWorker.addEventListener('message', handleForceReload);
+  
+  return () => {
+    navigator.serviceWorker.removeEventListener('message', handleForceReload);
+  };
+}, []);
+
   // Add this useEffect for toast visibility events
   useEffect(() => {
     // Dispatch event when visibility changes
@@ -35,24 +51,31 @@ const UpdatePrompt = () => {
 
  
 
-  const handleReload = () => {
-    const registration = registrationRef.current;
-    if (registration?.waiting) {
-      setIsUpdating(true);
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+//   const handleReload = () => {
+//     const registration = registrationRef.current;
+//     if (registration?.waiting) {
+//       setIsUpdating(true);
+//       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       
-      let reloaded = false;
-      const controllerChangeHandler = () => {
-        if (!reloaded) {
-          reloaded = true;
-          window.location.reload();
-        }
-        navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeHandler);
-      };
+//       let reloaded = false;
+//       const controllerChangeHandler = () => {
+//         if (!reloaded) {
+//           reloaded = true;
+//           window.location.reload();
+//         }
+//         navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeHandler);
+//       };
 
-      navigator.serviceWorker.addEventListener('controllerchange', controllerChangeHandler);
-    }
-  };
+//       navigator.serviceWorker.addEventListener('controllerchange', controllerChangeHandler);
+//     }
+//   };
+
+const handleReload = () => {
+  if (registration?.waiting) {
+    setIsUpdating(true);
+    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
+};
 
   // Add close handler that sets visibility to false
   const handleClose = () => {

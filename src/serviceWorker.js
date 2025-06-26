@@ -8,6 +8,11 @@ import { clientsClaim } from 'workbox-core';
 const CACHE_NAME = 'app-cache-v1';
 const PRECACHE_NAME = 'precache-v1';
 
+self.addEventListener('install', event => {
+  // Immediately claim new clients
+  self.skipWaiting();
+});
+
 // Precache only essential assets with improved filtering
 precacheAndRoute(
   self.__WB_MANIFEST.filter(file => 

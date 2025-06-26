@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && workbox injectManifest workbox-config.js",
+    "build": "react-scripts build && npx workbox injectManifest workbox-config.js",
     "postbuild": "echo '{\"version\":\"'${REACT_APP_VERSION:-local}'\",\"buildDate\":\"'$(date +%s)'\"}' > build/build-meta.json",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

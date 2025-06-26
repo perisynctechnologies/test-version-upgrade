@@ -11,8 +11,8 @@ module.exports = {
   dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
   
   // Added mode and watch options for better development
-  mode: 'production',
-  watch: process.env.NODE_ENV === 'development',
+//   mode: 'production',
+//   watch: process.env.NODE_ENV === 'development',
   
   // Enhanced exclude patterns
   exclude: [

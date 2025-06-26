@@ -5,13 +5,15 @@ import { ExpirationPlugin } from 'workbox-expiration';
 import { clientsClaim } from 'workbox-core';
 
 // Define cache name
+const CACHE_VERSION = 'v2'; // Update this with each deployment
 const CACHE_NAME = 'app-cache-v1';
 const PRECACHE_NAME = 'precache-v1';
 
 self.addEventListener('install', event => {
-  // Immediately claim new clients
-  self.skipWaiting();
+  self.skipWaiting(); // Activate immediately
+  console.log(`Installing service worker version: ${CACHE_VERSION}`);
 });
+
 
 // Precache only essential assets with improved filtering
 precacheAndRoute(
@@ -23,21 +25,18 @@ precacheAndRoute(
 // Claim clients immediately
 clientsClaim();
 
-// Skip waiting on update
-self.addEventListener('message', event => {
-  if (event.data?.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-    
-    // Immediately claim all clients
-    self.clients.claim().then(() => {
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({ type: 'FORCE_RELOAD' });
+self.addEventListener('activate', event => {
+  // Notify clients about new version
+  event.waitUntil(
+    self.clients.matchAll({includeUncontrolled: true}).then(clients => {
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'NEW_VERSION_AVAILABLE',
+          version: CACHE_VERSION
         });
       });
-    });
-  }
-});
+    })
+  );
 
 // Cleanup old caches
 self.addEventListener('activate', event => {

@@ -6,21 +6,20 @@ const UpdatePrompt = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const registrationRef = useRef(null);
 
-
-  // Add this useEffect
-useEffect(() => {
-  const handleForceReload = (event) => {
-    if (event.data?.type === 'FORCE_RELOAD') {
-      window.location.reload();
-    }
-  };
-  
-  navigator.serviceWorker.addEventListener('message', handleForceReload);
-  
-  return () => {
-    navigator.serviceWorker.removeEventListener('message', handleForceReload);
-  };
-}, []);
+  // Listen for FORCE_RELOAD messages from service worker
+  useEffect(() => {
+    const handleForceReload = (event) => {
+      if (event.data?.type === 'FORCE_RELOAD') {
+        window.location.reload();
+      }
+    };
+    
+    navigator.serviceWorker.addEventListener('message', handleForceReload);
+    
+    return () => {
+      navigator.serviceWorker.removeEventListener('message', handleForceReload);
+    };
+  }, []);
 
   // Add this useEffect for toast visibility events
   useEffect(() => {
@@ -37,40 +36,36 @@ useEffect(() => {
     };
   }, [isVisible]);
 
+  // Enhanced update detection with dual mechanisms
   useEffect(() => {
-    const handleUpdate = event => {
+    // Existing swUpdate listener
+    const handleUpdateEvent = event => {
       if (document.visibilityState === 'visible') {
         registrationRef.current = event.detail;
         setIsVisible(true);
       }
     };
 
-    document.addEventListener('swUpdate', handleUpdate);
-    return () => document.removeEventListener('swUpdate', handleUpdate);
+    // New: Listen for version messages from service worker
+    const handleVersionMessage = (event) => {
+      if (event.data?.type === 'NEW_VERSION_AVAILABLE') {
+        console.log('New version detected via service worker:', event.data.version);
+        setIsVisible(true);
+      }
+    };
+
+    // Set up both event listeners
+    document.addEventListener('swUpdate', handleUpdateEvent);
+    navigator.serviceWorker.addEventListener('message', handleVersionMessage);
+    
+    return () => {
+      // Clean up both event listeners
+      document.removeEventListener('swUpdate', handleUpdateEvent);
+      navigator.serviceWorker.removeEventListener('message', handleVersionMessage);
+    };
   }, []);
 
- 
-
-//   const handleReload = () => {
-//     const registration = registrationRef.current;
-//     if (registration?.waiting) {
-//       setIsUpdating(true);
-//       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-      
-//       let reloaded = false;
-//       const controllerChangeHandler = () => {
-//         if (!reloaded) {
-//           reloaded = true;
-//           window.location.reload();
-//         }
-//         navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeHandler);
-//       };
-
-//       navigator.serviceWorker.addEventListener('controllerchange', controllerChangeHandler);
-//     }
-//   };
-
- const handleReload = () => {
+  const handleReload = () => {
     const registration = registrationRef.current;
     if (registration?.waiting) {
       setIsUpdating(true);
@@ -79,7 +74,6 @@ useEffect(() => {
     }
   };
 
-  // Add close handler that sets visibility to false
   const handleClose = () => {
     setIsVisible(false);
   };
@@ -106,7 +100,7 @@ useEffect(() => {
             ) : 'Update Now'}
           </button>
           <button
-            onClick={handleClose}  // Updated to use handleClose
+            onClick={handleClose}
             className="dismiss-btn"
             disabled={isUpdating}
           >

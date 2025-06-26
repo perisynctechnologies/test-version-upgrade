@@ -81,26 +81,36 @@ const updateIntervals = new WeakMap();
 function registerValidSW(swUrl, config) {
   navigator.serviceWorker.register(swUrl)
     .then(registration => {
-      // Immediate update check
+      // Immediate update check on registration
       registration.update();
       
-      // Periodic update checks (every 5 minutes)
+      // Check for updates every 5 minutes
       const intervalId = setInterval(() => {
         registration.update().catch(err => 
           console.debug('Background update check failed:', err)
         );
-      }, 1 * 60 * 1000);
+      }, 5 * 60 * 1000);
       
       updateIntervals.set(registration, intervalId);
 
       // Enhanced update detection
-      waitUntilUpdate(registration).then(reg => {
-        if (navigator.serviceWorker.controller) {
-          config?.onUpdate?.(reg);
-        } else {
-          config?.onSuccess?.(reg);
-        }
+      const trackInstalling = (worker) => {
+        worker.addEventListener('statechange', () => {
+          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+            config?.onUpdate?.(registration);
+          }
+        });
+      };
+
+      // Listen for updates
+      registration.addEventListener('updatefound', () => {
+        trackInstalling(registration.installing);
       });
+      
+      // Check if there's already a waiting worker
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        config?.onUpdate?.(registration);
+      }
     })
     .catch(error => {
       console.error('SW registration failed:', error);

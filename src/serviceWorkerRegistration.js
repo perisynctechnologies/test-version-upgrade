@@ -1,3 +1,5 @@
+const swUrl = `${process.env.PUBLIC_URL}/serviceWorker.js`; // Match actual filename
+
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
   window.location.hostname === '[::1]' ||
@@ -54,7 +56,7 @@ export function register(config) {
     console.log(`App version: ${process.env.REACT_APP_VERSION}`);
 
     const registerSW = () => {
-      const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
+      const swUrl = `${process.env.PUBLIC_URL}/serviceWorker.js`;
       if (isLocalhost) {
         checkValidServiceWorker(swUrl, config);
         navigator.serviceWorker.ready.then(() => {

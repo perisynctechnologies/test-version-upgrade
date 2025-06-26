@@ -5,7 +5,7 @@ import { ExpirationPlugin } from 'workbox-expiration';
 import { clientsClaim } from 'workbox-core';
 
 // Define cache name
-const CACHE_VERSION = 'v4'; // Update this with each deployment
+const CACHE_VERSION = 'v5'; // Update this with each deployment
 const CACHE_NAME = 'app-cache-v1';
 const PRECACHE_NAME = 'precache-v1';
 

@@ -7,9 +7,31 @@
   pointer-events: none;
 }
 
+.app-content {
+  position: relative;
+  transition: padding-bottom 0.3s ease;
+  z-index: 1; /* Below toast */
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+@media (max-width: 768px) {
+  .App-header {
+    padding-top: 20px; /* Space for toast */
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  body.toast-visible {
+    padding-bottom: 120px; /* Space for toast */
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
   }
 }
 

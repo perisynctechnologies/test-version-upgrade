@@ -1,23 +1,45 @@
-import logo from './logo.svg';
+import { useEffect } from 'react';
 import './App.css';
+import UpdatePrompt from './components/UpdatePrompt';
 
 function App() {
+  useEffect(() => {
+    const handleToastVisibility = (e) => {
+      if (e.detail) {
+        // Toast visible - lock scroll
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.paddingBottom = '100px'; // Space for toast
+      } else {
+        // Toast hidden - restore scroll
+        document.body.style.overflow = '';
+        document.documentElement.style.paddingBottom = '';
+      }
+    };
+    
+    document.addEventListener('toastVisibility', handleToastVisibility);
+    
+    // Cleanup event listener on unmount
+    return () => {
+      document.removeEventListener('toastVisibility', handleToastVisibility);
+      
+      // Ensure scroll is restored if component unmounts while toast is visible
+      document.body.style.overflow = '';
+      document.documentElement.style.paddingBottom = '';
+    };
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <UpdatePrompt />
+      <div className="app-content">
+        {/* Your app content here */}
+        <header>
+          <h1>My Application</h1>
+        </header>
+        <main>
+          <p>Welcome to the app!</p>
+        </main>
+      </div>
     </div>
   );
 }

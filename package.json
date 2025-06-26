@@ -12,6 +12,7 @@
     "react-error-boundary": "^6.0.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
+    "workbox-cli": "^7.3.0",
     "workbox-core": "^7.3.0",
     "workbox-precaching": "^7.3.0",
     "workbox-routing": "^7.3.0",
